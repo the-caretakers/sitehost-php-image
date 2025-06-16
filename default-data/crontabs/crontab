@@ -1,0 +1,27 @@
+MAILTO=""
+# This is the crontab for the user the web server runs as, it uses the standard cron syntax.
+#
+#   field          allowed values
+#   -----          --------------
+#   minute         0-59
+#   hour           0-23
+#   day of month   1-31
+#   month          1-12 (or names, see below)
+#   day of week    0-7 (0 or 7 is Sun, or use names)
+#
+#
+# File Locations:
+# --------------------------------------------------------------------------
+#
+# The location of files differs between the web server and ssh login.
+#
+# Web server: /var/www/html
+# SSH       : /websites/<website_name>/application
+#
+# The cronjob MUST point at the web server path.
+#
+# Example:
+# --------------------------------------------------------------------------
+#
+# The command below will run every 5 minutes:
+# */5 * * * * touch /container/application/public/index.html

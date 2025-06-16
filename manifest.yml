@@ -1,0 +1,31 @@
+# Version of the manifest file
+version: 1
+
+image:
+  label: sitehost-php83-nginx
+  type: www
+  provider: SiteHost
+  
+  ports:
+    80:
+      exposed: True
+      publish: False
+      protocol: tcp
+
+  volumes:
+    config:
+      mode: ro
+      dest: /container/config
+    logs:
+      mode: rw
+      dest: /container/logs
+    crontabs:
+      mode: ro
+      dest: /cron
+    application:
+      dest: /container/application
+      mode: rw
+    system:
+      dest: /container/system
+      mode: rw
+
