@@ -35,24 +35,24 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install actual Chromium binary (not snap)
-RUN CHROMIUM_VERSION="1378168" \
-    && echo "Downloading Chromium version ${CHROMIUM_VERSION}..." \
-    && wget --timeout=60 --tries=3 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${CHROMIUM_VERSION}%2Fchrome-linux.zip?alt=media" -O /tmp/chromium.zip \
-    && echo "Download complete, extracting..." \
-    && unzip -q /tmp/chromium.zip -d /opt/ \
-    && mv /opt/chrome-linux /opt/chromium \
-    && chmod +x /opt/chromium/chrome \
-    && ln -sf /opt/chromium/chrome /usr/bin/chromium-browser \
-    && echo "Chromium installed successfully" \
-    && rm /tmp/chromium.zip
+# Let Puppeteer download its own Chromium (most reliable)
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
 
-# Set environment variables for Puppeteer to use Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-
-# Install Puppeteer globally using existing Node.js installation
+# Install Puppeteer globally - it will download its own compatible Chromium
 RUN npm install --global --unsafe-perm puppeteer
+
+# Find and symlink the Puppeteer Chromium to a standard location
+RUN CHROME_PATH=$(find /usr/local/lib/node_modules/puppeteer/.local-chromium -name chrome -type f 2>/dev/null | head -1) \
+    && if [ -n "$CHROME_PATH" ]; then \
+        ln -sf "$CHROME_PATH" /usr/bin/chromium-browser; \
+        echo "Chromium symlinked from $CHROME_PATH"; \
+    else \
+        echo "ERROR: Could not find Puppeteer Chromium binary"; \
+        exit 1; \
+    fi
+
+# Set environment variables pointing to Puppeteer's Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Create stable symlinks for Node.js binaries (from /usr/local/bin to /usr/bin for consistency)
 RUN ln -sf /usr/local/bin/node /usr/bin/node \
