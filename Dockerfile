@@ -27,6 +27,12 @@ RUN mkdir -p /tmp/chrome-crash-dumps \
     && chown -R www-data:www-data /tmp/chrome-crash-dumps \
     && chmod -R 755 /tmp/chrome-crash-dumps
 
+# Set up www-data user environment properly
+RUN usermod -d /var/www www-data \
+    && mkdir -p /var/www \
+    && chown www-data:www-data /var/www \
+    && chmod 755 /var/www
+
 # Create stable symlinks for Node.js binaries
 RUN ln -sf /usr/local/bin/node /usr/bin/node \
     && ln -sf /usr/local/bin/npm /usr/bin/npm \
@@ -39,3 +45,4 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
 ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
+ENV HOME=/var/www
