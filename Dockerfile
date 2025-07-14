@@ -11,6 +11,17 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create Chrome user data directory with proper permissions
+RUN mkdir -p /var/www/.local/share/applications \
+    && mkdir -p /var/www/.cache/google-chrome \
+    && mkdir -p /tmp/chrome-user-data \
+    && chown -R www-data:www-data /var/www/.local \
+    && chown -R www-data:www-data /var/www/.cache \
+    && chown -R www-data:www-data /tmp/chrome-user-data \
+    && chmod -R 755 /var/www/.local \
+    && chmod -R 755 /var/www/.cache \
+    && chmod -R 755 /tmp/chrome-user-data
+
 # Create stable symlinks for Node.js binaries
 RUN ln -sf /usr/local/bin/node /usr/bin/node \
     && ln -sf /usr/local/bin/npm /usr/bin/npm \
@@ -21,5 +32,5 @@ ENV NODE_BINARY=/usr/bin/node
 ENV NPM_BINARY=/usr/bin/npm
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none"
-ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none"
+ENV PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
+ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
