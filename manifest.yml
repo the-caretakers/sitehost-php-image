@@ -1,17 +1,13 @@
-# Version of the manifest file
 version: 1
-
 image:
-  label: sitehost-php83-nginx
+  label: 'Nginx + PHP 8.3 + Puppeteer'
   type: www
-  provider: SiteHost
-  
+  provider: 'The Caretakers'
   ports:
     80:
-      exposed: True
-      publish: False
+      exposed: true
+      publish: false
       protocol: tcp
-
   volumes:
     config:
       mode: ro
@@ -28,4 +24,3 @@ image:
     system:
       dest: /container/system
       mode: rw
-
