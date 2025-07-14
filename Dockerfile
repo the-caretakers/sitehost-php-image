@@ -1,23 +1,50 @@
 FROM registry.sitehost.co.nz/sitehost-php83-nginx:5.0.1-noble
 
-# Install Chromium and dependencies for Puppeteer
+# Install actual Chromium (not the snap wrapper)
 RUN apt-get update \
     && apt-get install -y \
     # Basic tools
     curl \
     gnupg \
     ca-certificates \
-    # Chromium browser
-    chromium-browser \
+    wget \
     # Additional fonts for better rendering
     fonts-liberation \
     fonts-noto-color-emoji \
     fontconfig \
+    # Dependencies for Chromium
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libxss1 \
+    # Try installing chromium directly (not chromium-browser which is snap wrapper)
+    && apt-get install -y chromium \
+    # If chromium package doesn't exist, install from alternative source
+    || (wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+        && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+        && apt-get update \
+        && apt-get install -y chromium-browser --no-install-recommends) \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables for Puppeteer to use system Chromium
+# Create symlink for consistent chromium path
+RUN if [ -f /usr/bin/chromium ]; then \
+        ln -sf /usr/bin/chromium /usr/bin/chromium-browser; \
+    elif [ -f /usr/bin/chromium-browser ]; then \
+        echo "chromium-browser already exists"; \
+    else \
+        echo "No chromium binary found"; \
+    fi
+
+# Set environment variables for Puppeteer to use Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
