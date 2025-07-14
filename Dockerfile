@@ -21,3 +21,6 @@ ENV NODE_BINARY=/usr/bin/node
 ENV NPM_BINARY=/usr/bin/npm
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+# Disable sandbox with Chromium
+ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
