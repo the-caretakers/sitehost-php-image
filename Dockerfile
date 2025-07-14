@@ -36,12 +36,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install actual Chromium binary (not snap)
-RUN CHROMIUM_VERSION="1361283" \
-    && wget -q "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${CHROMIUM_VERSION}%2Fchrome-linux.zip?alt=media" -O /tmp/chromium.zip \
-    && unzip /tmp/chromium.zip -d /opt/ \
+RUN CHROMIUM_VERSION="1378168" \
+    && echo "Downloading Chromium version ${CHROMIUM_VERSION}..." \
+    && wget --timeout=60 --tries=3 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${CHROMIUM_VERSION}%2Fchrome-linux.zip?alt=media" -O /tmp/chromium.zip \
+    && echo "Download complete, extracting..." \
+    && unzip -q /tmp/chromium.zip -d /opt/ \
     && mv /opt/chrome-linux /opt/chromium \
     && chmod +x /opt/chromium/chrome \
     && ln -sf /opt/chromium/chrome /usr/bin/chromium-browser \
+    && echo "Chromium installed successfully" \
     && rm /tmp/chromium.zip
 
 # Set environment variables for Puppeteer to use Chromium
