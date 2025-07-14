@@ -35,19 +35,29 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Let Puppeteer download its own Chromium (most reliable)
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+# Install Puppeteer and force Chromium download
+RUN PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false npm install --global --unsafe-perm puppeteer \
+    && echo "Puppeteer installed, searching for Chromium..." \
+    && find /usr/local/lib/node_modules/puppeteer -name "*chrome*" -type f 2>/dev/null || echo "No chrome files found" \
+    && find /root/.cache/puppeteer -name "*chrome*" -type f 2>/dev/null || echo "No chrome files in cache" \
+    && ls -la /usr/local/lib/node_modules/puppeteer/ || echo "Puppeteer dir not found"
 
-# Install Puppeteer globally - it will download its own compatible Chromium
-RUN npm install --global --unsafe-perm puppeteer
-
-# Find and symlink the Puppeteer Chromium to a standard location
-RUN CHROME_PATH=$(find /usr/local/lib/node_modules/puppeteer/.local-chromium -name chrome -type f 2>/dev/null | head -1) \
+# Find Chromium binary in multiple possible locations and create symlink
+RUN CHROME_PATH="" \
+    && for path in \
+        "/usr/local/lib/node_modules/puppeteer/.local-chromium/*/chrome-linux/chrome" \
+        "/root/.cache/puppeteer/chrome/*/chrome-linux/chrome" \
+        "/usr/local/lib/node_modules/puppeteer/.cache/puppeteer/chrome/*/chrome-linux/chrome"; do \
+        if [ -f $path ]; then \
+            CHROME_PATH=$path; \
+            break; \
+        fi; \
+    done \
     && if [ -n "$CHROME_PATH" ]; then \
         ln -sf "$CHROME_PATH" /usr/bin/chromium-browser; \
         echo "Chromium symlinked from $CHROME_PATH"; \
     else \
-        echo "ERROR: Could not find Puppeteer Chromium binary"; \
+        echo "ERROR: Could not find Puppeteer Chromium binary anywhere"; \
         exit 1; \
     fi
 
