@@ -1,6 +1,6 @@
 FROM registry.sitehost.co.nz/sitehost-php83-nginx:5.0.1-noble
 
-# Install actual Chromium (not the snap wrapper)
+# Install dependencies and download actual Chromium binary
 RUN apt-get update \
     && apt-get install -y \
     # Basic tools
@@ -8,6 +8,7 @@ RUN apt-get update \
     gnupg \
     ca-certificates \
     wget \
+    unzip \
     # Additional fonts for better rendering
     fonts-liberation \
     fonts-noto-color-emoji \
@@ -24,25 +25,22 @@ RUN apt-get update \
     libxrandr2 \
     libgbm1 \
     libxss1 \
-    # Try installing chromium directly (not chromium-browser which is snap wrapper)
-    && apt-get install -y chromium \
-    # If chromium package doesn't exist, install from alternative source
-    || (wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-        && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-        && apt-get update \
-        && apt-get install -y chromium-browser --no-install-recommends) \
+    libgconf-2-4 \
+    libxfixes3 \
+    libxinerama1 \
+    libxkbcommon0 \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create symlink for consistent chromium path
-RUN if [ -f /usr/bin/chromium ]; then \
-        ln -sf /usr/bin/chromium /usr/bin/chromium-browser; \
-    elif [ -f /usr/bin/chromium-browser ]; then \
-        echo "chromium-browser already exists"; \
-    else \
-        echo "No chromium binary found"; \
-    fi
+# Download and install actual Chromium binary (not snap)
+RUN CHROMIUM_VERSION="1361283" \
+    && wget -q "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${CHROMIUM_VERSION}%2Fchrome-linux.zip?alt=media" -O /tmp/chromium.zip \
+    && unzip /tmp/chromium.zip -d /opt/ \
+    && mv /opt/chrome-linux /opt/chromium \
+    && chmod +x /opt/chromium/chrome \
+    && ln -sf /opt/chromium/chrome /usr/bin/chromium-browser \
+    && rm /tmp/chromium.zip
 
 # Set environment variables for Puppeteer to use Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
