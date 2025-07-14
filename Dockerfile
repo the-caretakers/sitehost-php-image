@@ -20,3 +20,5 @@ RUN mkdir -p /usr/lib/node_modules \
 ENV NODE_BINARY=/usr/bin/node
 ENV NPM_BINARY=/usr/bin/npm
 ENV NODE_MODULES_PATH=/usr/lib/node_modules
+ENV PUPPETEER_CACHE_DIR=/usr/local/lib/node_modules/puppeteer/.cache
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
