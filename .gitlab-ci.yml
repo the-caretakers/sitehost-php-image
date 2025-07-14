@@ -1,0 +1,32 @@
+image: "registry.sitehost.co.nz/compile-base-image-xenial:cloud"
+
+stages:
+  - build_image
+  - notifications
+
+build:
+  stage: build_image
+  script:
+    - python /sitehost/build_image.py
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  tags:
+    - cloud
+
+notify:failure:
+  stage: notifications
+  script:
+    - "python /sitehost/notify_failure.py || bash /sitehost/notify.sh"
+  when: on_failure
+  tags:
+    - cloud
+
+notify:success:
+  stage: notifications
+  script:
+    - "python /sitehost/notify_success.py || bash /sitehost/notify.sh"
+  when: on_success
+  tags:
+    - cloud
