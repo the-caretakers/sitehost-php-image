@@ -4,9 +4,8 @@ FROM registry.sitehost.co.nz/sitehost-php83-nginx:5.0.1-noble
 RUN apt-get update \
     && apt-get install -y libasound2t64 libatk1.0-0t64 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0t64 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release xdg-utils wget libgbm-dev libxshmfence-dev \
     && npm install --global --unsafe-perm puppeteer \
-    && npx puppeteer browsers install chrome \
-    && chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.local-chromium || true \
-    && chmod -R o+rx /home/lahood/.cache/puppeteer || true
+    && PUPPETEER_CACHE_DIR=/usr/local/lib/node_modules/puppeteer/.cache npx puppeteer browsers install chrome \
+    && chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.cache || true
 
 # Create stable symlinks for Node.js binaries
 RUN ln -sf /usr/local/bin/node /usr/bin/node \
