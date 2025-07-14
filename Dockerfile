@@ -13,11 +13,11 @@ RUN apt-get update \
     fonts-liberation \
     fonts-noto-color-emoji \
     fontconfig \
-    # Dependencies for Chromium
-    libasound2 \
-    libatk-bridge2.0-0 \
+    # Dependencies for Chromium (Ubuntu 24.04 Noble compatible)
+    libasound2t64 \
+    libatk-bridge2.0-0t64 \
     libdrm2 \
-    libgtk-3-0 \
+    libgtk-3-0t64 \
     libnspr4 \
     libnss3 \
     libxcomposite1 \
@@ -25,10 +25,12 @@ RUN apt-get update \
     libxrandr2 \
     libgbm1 \
     libxss1 \
-    libgconf-2-4 \
     libxfixes3 \
     libxinerama1 \
     libxkbcommon0 \
+    libatk1.0-0t64 \
+    libcairo-gobject2 \
+    libgtk-4-1 \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
