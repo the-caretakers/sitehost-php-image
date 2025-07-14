@@ -16,11 +16,10 @@ RUN ln -sf /usr/local/bin/node /usr/bin/node \
     && ln -sf /usr/local/bin/npm /usr/bin/npm \
     && ln -sf /usr/local/bin/npx /usr/bin/npx
 
-# Set environment variables for Laravel apps
+# Set environment variables for Laravel apps and Puppeteer
 ENV NODE_BINARY=/usr/bin/node
 ENV NPM_BINARY=/usr/bin/npm
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-
-# Disable sandbox with Chromium
-ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+ENV PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none"
+ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none"
