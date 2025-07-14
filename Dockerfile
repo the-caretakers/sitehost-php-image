@@ -22,6 +22,11 @@ RUN mkdir -p /var/www/.local/share/applications \
     && chmod -R 755 /var/www/.cache \
     && chmod -R 755 /tmp/chrome-user-data
 
+# Make an explicit crash dumps directory
+RUN mkdir -p /tmp/chrome-crash-dumps \
+    && chown -R www-data:www-data /tmp/chrome-crash-dumps \
+    && chmod -R 755 /tmp/chrome-crash-dumps
+
 # Create stable symlinks for Node.js binaries
 RUN ln -sf /usr/local/bin/node /usr/bin/node \
     && ln -sf /usr/local/bin/npm /usr/bin/npm \
