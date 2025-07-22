@@ -57,7 +57,7 @@ server {
     rewrite ^/(.*)/$ /$1 permanent;
 
     # Cache static assets with proper headers
-    location ~* \.(gif|jpg|jpeg|png|ico|svg|webp|woff|woff2|ttf|otf|eot|css|js|pdf|zip|tar|bz2|rar|mp3|mp4|avi|mov|wmv|webm)$ {
+    location ~* \.(gif|jpg|jpeg|png|ico|svg|webp|woff|woff2|ttf|otf|eot|pdf|zip|tar|bz2|rar|mp3|mp4|avi|mov|wmv|webm)$ {
         access_log off;
         expires 1y;
         add_header Cache-Control "public, immutable";
