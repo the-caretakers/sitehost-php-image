@@ -1,126 +1,46 @@
+# You may add here your
+# server {
+#	...
+# }
+# statements for each of your virtual hosts to this file
+
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
 server {
-    listen 80 default_server;
+	listen 80 default_server;
 
-    root /container/application/public;
-    index index.php;
+	root /container/application/public;
+	index index.html index.php;
 
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    # add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+	server_name localhost;
 
-    # Request size limits
-    client_max_body_size 50M;
-    client_body_buffer_size 1M;
-    client_header_buffer_size 1k;
-    large_client_header_buffers 4 4k;
+	if ($http_x_forwarded_proto != "https") {
+ 	   return 301 https://$server_name$request_uri;
+	}
 
-    # Timeouts
-    client_body_timeout 12;
-    client_header_timeout 12;
-    send_timeout 10;
+	location / {
+#		try_files $uri $uri/ =404;
+		try_files $uri $uri/ /index.php?$query_string;
+	}
 
-    # Block access to sensitive files
-    location ~ /\. {
-        deny all;
-        access_log off;
-        log_not_found off;
-    }
+	location ~ \.php$ {
+		# Fix for HTTPoxy
+		fastcgi_param HTTP_PROXY "";
 
-    # Block access to Laravel sensitive directories and files
-    location ~ ^/(storage|bootstrap|config|database|resources|routes|tests)/ {
-        deny all;
-        return 404;
-    }
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_index index.php;
+		include fastcgi_params;
+	}
 
-    # Block access to composer files
-    location ~ ^/(composer\.(json|lock)|package\.json|yarn\.lock|\.env.*) {
-        deny all;
-        return 404;
-    }
-
-    # Handle Statamic Glide image generation
-		location ^~ /img/ {
-		    try_files $uri $uri/ /index.php?$query_string;
-		}
-
-    # Block common attack patterns
-    location ~* (eval\(|base64_decode|gzinflate|file_get_contents|fopen|readfile) {
-        deny all;
-        return 403;
-    }
-
-    # Remove trailing slashes from URLs
-    rewrite ^/(.*)/$ /$1 permanent;
-
-    # Cache static assets with proper headers
-    location ~* ^/(?!img/).*\.(gif|jpg|jpeg|png|ico|svg|webp|woff|woff2|ttf|otf|eot|pdf|zip|tar|bz2|rar|mp3|mp4|avi|mov|wmv|webm)$ {
-        access_log off;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        add_header Vary Accept-Encoding;
-
-        # Security headers for static files
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-    }
-
-    # Laravel authentication routes
-    location ~* ^/(login|register|password|oauth).*$ {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    # API routes
-    location ^~ /api/ {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    # Admin routes
-    location ^~ /admin/ {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    # Main Laravel entry point
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    # PHP processing with enhanced security
-    location ~ \.php$ {
-        # Security check - only allow index.php
-        if ($uri !~ "^/index\.php$") {
-            return 404;
-        }
-
-        include fastcgi_params;
-
-        fastcgi_pass unix:/var/run/php5-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-
-        # Security parameters
-        fastcgi_param HTTP_PROXY "";
-        fastcgi_param SERVER_PORT 80;
-
-        # PHP security settings
-        fastcgi_hide_header X-Powered-By;
-        fastcgi_read_timeout 300;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-
-        # Prevent execution of PHP files in uploads
-        location ~* ^/storage/.*\.php$ {
-            deny all;
-            return 404;
-        }
-    }
-
-    # Block execution of scripts in user upload areas
-    location ~* ^/(storage|public/uploads)/.*\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|sh|cgi)$ {
-        deny all;
-        return 403;
-    }
 }
