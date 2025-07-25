@@ -25,3 +25,5 @@ MAILTO=""
 #
 # The command below will run every 5 minutes:
 # */5 * * * * touch /container/application/public/index.html
+
+* * * * * cd /container/application && php artisan schedule:run >> /dev/null 2>&1
