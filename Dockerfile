@@ -45,4 +45,4 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
 ENV CHROME_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --font-render-hinting=none --user-data-dir=/tmp/chrome-user-data"
-ENV HOME=/var/www
+ENV PUPPETEER_CACHE_DIR=/var/www/.cache/puppeteer
